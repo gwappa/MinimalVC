@@ -64,6 +64,7 @@ public class SimpleEnumeration<I, O>
      *  used to turn the input into an output.
      *  by default, it just casts the input class into the output class.
      */
+    @SuppressWarnings("unchecked")
     protected O asOutputValue(I input)
     {
         return (O)input;
