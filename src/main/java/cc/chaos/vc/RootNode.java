@@ -26,14 +26,9 @@
 package cc.chaos.vc;
 
 /**
- *  a representation of version-controlled repository entity model.
- *  @author gwappa
+ *  the interface that is used as a mark of being a root node.
  */
-public interface Repository<V extends Node>
-    extends javax.swing.tree.TreeModel
+public interface RootNode<V extends Node>
 {
-    /**
-     *  @return the root Node object for this repository.
-     */
-    RootNode<V> getRootNode();
+    
 }

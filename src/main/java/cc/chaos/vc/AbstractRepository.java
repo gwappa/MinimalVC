@@ -33,39 +33,61 @@ import javax.swing.event.TreeModelListener;
  *  a base implementation for a version-controlled repository model.
  *  @author gwappa
  */
-public abstract class AbstractRepository<V extends javax.swing.tree.TreeNode>
+public abstract class AbstractRepository<V extends Node>
     implements Repository<V>
 {
     LinkedList<TreeModelListener> listeners_ = new LinkedList<>();
 
+    RootNode<V> root_;
+
+    public AbstractRepository(RootNode<V> root)
+    {
+        setRootNode(root);
+    }
+
+    protected void setRootNode(RootNode<V> root)
+    {
+        root_ = root;
+    }
+
+    @Override
+    public RootNode<V> getRootNode()
+    {
+        return root_;
+    }
+
     @Override
     public Object getRoot()
     {
-        return "root";
+        return getRootNode();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean isLeaf(Object node)
     {
-        return false;
+        return ((V)node).isLeaf();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public int getChildCount(Object parent)
     {
-        return 0;
+        return ((V)parent).getChildCount();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object getChild(Object parent, int index)
     {
-        return "invalid";
+        return ((V)parent).getChildAt(index);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public int getIndexOfChild(Object parent, Object child)
     {
-        return -1;
+        return ((V)parent).getIndex((V)child);
     }
 
     @Override

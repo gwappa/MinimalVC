@@ -26,14 +26,33 @@
 package cc.chaos.vc;
 
 /**
- *  a representation of version-controlled repository entity model.
- *  @author gwappa
+ * the interface for managed object nodes.
  */
-public interface Repository<V extends Node>
-    extends javax.swing.tree.TreeModel
+public interface Node<V extends Node>
+    extends javax.swing.tree.TreeNode
 {
     /**
-     *  @return the root Node object for this repository.
+     *  @return the repository associated with this node.
      */
-    RootNode<V> getRootNode();
+    Repository<V> getRepository();
+
+    /**
+     * @return the node object representing its repository root.
+     */
+    RootNode<V> getRepositoryRoot();
+
+    /**
+     *  @return the name of the node.
+     */
+    String getName();
+
+    /**
+     *  @return whether or not this Node represents the repository root.
+     */
+    boolean isRoot();
+
+    /**
+     *  @return the parent node for this Node object. null, if this is the root node.
+     */
+    V getParentNode();
 }

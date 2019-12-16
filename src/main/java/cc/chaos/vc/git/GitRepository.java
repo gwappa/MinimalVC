@@ -23,17 +23,28 @@
  *
  */
 
-package cc.chaos.vc;
+package cc.chaos.vc.git;
+
+import java.io.File;
+import cc.chaos.vc.Repository;
+import cc.chaos.vc.RootNode;
 
 /**
- *  a representation of version-controlled repository entity model.
+ *  a representation of a Git repository entity model in the file system.
  *  @author gwappa
  */
-public interface Repository<V extends Node>
-    extends javax.swing.tree.TreeModel
+public class GitRepository
+    extends cc.chaos.vc.AbstractRepository<GitNode>
 {
-    /**
-     *  @return the root Node object for this repository.
-     */
-    RootNode<V> getRootNode();
+    public GitRepository(File rootdir)
+    {
+        super(null);
+        initialize(rootdir);
+    }
+
+    protected void initialize(File rootdir)
+    {
+        // TODO make sure that this is the root (i.e. ".git" directory)
+        setRootNode(new GitRootNode(this, null, rootdir));
+    }
 }

@@ -23,14 +23,35 @@
  *
  */
 
-package cc.chaos.vc;
+package cc.chaos.vc.git;
+
+import java.io.File;
 
 /**
- *  a representation of a Git repository entity model in the file system.
+ *  a class that specifically represents the root node for a Git repository.
  *  @author gwappa
  */
-public class DefaultRepository
-    extends AbstractRepository<javax.swing.tree.TreeNode>
+public class GitRootNode
+    extends GitNode
+    implements cc.chaos.vc.RootNode<GitNode>
 {
+    protected GitRootNode(final GitRepository repository,
+                    final GitNode parent,
+                    final File repr)
+    {
+        super(repository, parent, repr);
+    }
 
+    @Override
+    public boolean equals(Object other)
+    {
+        return (other instanceof GitRootNode)
+                && (this.getFile().equals(((GitRootNode)other).getFile()));
+    }
+
+    @Override
+    public boolean isRoot()
+    {
+        return true;
+    }
 }

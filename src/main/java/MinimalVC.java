@@ -37,7 +37,7 @@ import javax.swing.JTree;
 import javax.swing.JTextField;
 import javax.swing.JList;
 
-import cc.chaos.vc.DefaultRepository;
+import cc.chaos.vc.git.GitRepository;
 
 /**
  *  the main UI.
@@ -62,7 +62,7 @@ public class MinimalVC
     private void setupUI()
     {
         // add tree view for directory view
-        JTree directoryView         = new JTree(new DefaultRepository());
+        JTree directoryView         = new JTree(new GitRepository(new java.io.File(System.getProperty("user.dir"))));
 
         // right side will be the control panel
         JPanel controlPanel         = new JPanel();

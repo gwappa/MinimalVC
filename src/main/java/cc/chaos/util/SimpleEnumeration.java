@@ -23,17 +23,49 @@
  *
  */
 
-package cc.chaos.vc;
+package cc.chaos.util;
+
+import java.util.NoSuchElementException;
 
 /**
- *  a representation of version-controlled repository entity model.
- *  @author gwappa
+ *  a utility one-time class for turning an array of elements into
+ *  a certain enumerator.
  */
-public interface Repository<V extends Node>
-    extends javax.swing.tree.TreeModel
+public class SimpleEnumeration<I, O>
+    implements java.util.Enumeration<O>
 {
+    I[] inputs_;
+    int index_;
+
+    public SimpleEnumeration(I[] inputs)
+    {
+        inputs_ = inputs;
+        index_  = 0;
+    }
+
+    @Override
+    public boolean hasMoreElements()
+    {
+        return index_ < inputs_.length;
+    }
+
+    @Override
+    public O nextElement()
+        throws NoSuchElementException
+    {
+        if (index_ == inputs_.length) {
+            throw new NoSuchElementException();
+        } else {
+            return asOutputValue(inputs_[index_++]);
+        }
+    }
+
     /**
-     *  @return the root Node object for this repository.
+     *  used to turn the input into an output.
+     *  by default, it just casts the input class into the output class.
      */
-    RootNode<V> getRootNode();
+    protected O asOutputValue(I input)
+    {
+        return (O)input;
+    }
 }
