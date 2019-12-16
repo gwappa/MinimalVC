@@ -26,10 +26,14 @@
 package cc.chaos.vc;
 
 /**
- *  the interface that is used as a mark of being a root node.
+ *  an exception class being thrown when the specified directory
+ *  turns out to be non-repository where it is supposed to be.
+ *  @author gwappa
  */
-public interface RootNode<V extends Node>
-    extends Node<V>
+public class NotARepositoryException
+    extends RepositoryException
 {
-
+    public NotARepositoryException(java.io.File dir) {
+        super(String.format("not a repository: %s", dir.toString()));
+    }
 }

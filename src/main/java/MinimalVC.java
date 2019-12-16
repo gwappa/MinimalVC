@@ -37,6 +37,9 @@ import javax.swing.JTree;
 import javax.swing.JTextField;
 import javax.swing.JList;
 
+import cc.chaos.util.Result;
+import cc.chaos.vc.Repository;
+import cc.chaos.vc.Node;
 import cc.chaos.vc.git.GitRepository;
 
 /**
@@ -46,9 +49,12 @@ import cc.chaos.vc.git.GitRepository;
 public class MinimalVC
     extends JPanel
 {
-    static final String TITLE_EMPTY = "(MinimalVC) <no repository selected>";
+    static final String TITLE_FORMAT  = "(MinimalVC) %s";
+    static final String NO_REPOSITORY = "<no repository selected>";
 
     JSplitPane content_;
+
+    Repository<? extends Node> repository_;
 
     public MinimalVC()
     {
@@ -62,7 +68,17 @@ public class MinimalVC
     private void setupUI()
     {
         // add tree view for directory view
-        JTree directoryView         = new JTree(new GitRepository(new java.io.File(System.getProperty("user.dir"))));
+        JTree directoryView;
+
+        Result<? extends Repository<? extends Node>> res
+            = GitRepository.fromRoot(System.getProperty("user.dir"));
+        if (res.isSuccessful()) {
+            repository_   = res.get();
+            directoryView = new JTree(repository_);
+        } else {
+            repository_   = null;
+            directoryView = new JTree();
+        }
 
         // right side will be the control panel
         JPanel controlPanel         = new JPanel();
@@ -113,6 +129,11 @@ public class MinimalVC
         add(content_, BorderLayout.CENTER);
     }
 
+    public String getRepositoryName()
+    {
+        return repository_.getName();
+    }
+
     public void resetVerticalSplit() {
         content_.setDividerLocation(0.5);
     }
@@ -125,7 +146,9 @@ public class MinimalVC
         frame.setLocation(100, 100);
         frame.setContentPane(content);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle(TITLE_EMPTY);
+        String reponame = content.getRepositoryName();
+        frame.setTitle(String.format(TITLE_FORMAT,
+                        (reponame == null)? NO_REPOSITORY:reponame));
         frame.setVisible(true);
         content.resetVerticalSplit();
     }

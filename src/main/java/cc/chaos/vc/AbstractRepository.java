@@ -45,6 +45,12 @@ public abstract class AbstractRepository<V extends Node>
         setRootNode(root);
     }
 
+    @Override
+    public String getName()
+    {
+        return getRootNode().getName();
+    }
+
     protected void setRootNode(RootNode<V> root)
     {
         root_ = root;

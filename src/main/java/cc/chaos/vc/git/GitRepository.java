@@ -26,6 +26,9 @@
 package cc.chaos.vc.git;
 
 import java.io.File;
+import java.io.IOException;
+
+import cc.chaos.util.Result;
 import cc.chaos.vc.Repository;
 import cc.chaos.vc.RootNode;
 
@@ -36,15 +39,37 @@ import cc.chaos.vc.RootNode;
 public class GitRepository
     extends cc.chaos.vc.AbstractRepository<GitNode>
 {
-    public GitRepository(File rootdir)
+    static final String BARE_REPOSITORY_DIR = ".git";
+
+    public static Result<GitRepository> fromRoot(File rootdir) {
+        try {
+            return Result.success(new GitRepository(rootdir));
+        } catch (IOException ioe) {
+            return Result.failure(ioe.getMessage());
+        }
+    }
+
+    public static Result<GitRepository> fromRoot(String rootdir) {
+        return fromRoot(new File(rootdir));
+    }
+
+    /**
+     *  used internally. use `fromRoot(File)` instead.
+     *  @see fromRoot(File)
+     */
+    protected GitRepository(File rootdir)
+        throws IOException
     {
         super(null);
-        initialize(rootdir);
+        initialize(rootdir.getAbsoluteFile());
     }
 
     protected void initialize(File rootdir)
+        throws IOException
     {
-        // TODO make sure that this is the root (i.e. ".git" directory)
+        if (!(new File(rootdir, BARE_REPOSITORY_DIR).isDirectory())) {
+            throw new cc.chaos.vc.NotARepositoryException(rootdir);
+        }
         setRootNode(new GitRootNode(this, null, rootdir));
     }
 }

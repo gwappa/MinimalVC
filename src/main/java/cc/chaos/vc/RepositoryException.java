@@ -26,10 +26,19 @@
 package cc.chaos.vc;
 
 /**
- *  the interface that is used as a mark of being a root node.
+ *  the exception class related to repository I/O
+ *  @author gwappa
  */
-public interface RootNode<V extends Node>
-    extends Node<V>
+public class RepositoryException
+    extends java.io.IOException
 {
+    public RepositoryException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 
+    public RepositoryException(String message)
+    {
+        super(message);
+    }
 }

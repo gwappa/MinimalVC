@@ -36,4 +36,9 @@ public interface Repository<V extends Node>
      *  @return the root Node object for this repository.
      */
     RootNode<V> getRootNode();
+
+    /**
+     *  @return a human-readable name of this repository.
+     */
+    String getName();
 }
