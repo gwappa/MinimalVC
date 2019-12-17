@@ -26,10 +26,13 @@
 package cc.chaos.util;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  *  a class for interacting with the outputs from the command line.
@@ -64,31 +67,45 @@ public class CommandLineProcessor
 
         public Runner(String input) {
             super();
-            input_ = input;
-            // TODO: read the current command (or copy the Builder object?)
+            // TODO: copy template?
+            // TODO: add callback object?
+            // TODO: other identifier object (e.g. command string)?
+            input_      = input;
         }
 
         @Override
         public void run()
         {
-            Process proc = template_.start();
+            Process proc;
+            try {
+                proc = template_.start();
+                // TODO: notify: started(this)
+            } catch (IOException ioe) {
+                LOGGER.log(Level.SEVERE, "cannot start a process", ioe);
+                return;
+            }
 
             // push input to stdin
             if (input_ != null) {
-                Outputstream stdin = proc.getOutputStream();
-                stdin.write(input);
+                PrintWriter stdin = new PrintWriter(proc.getOutputStream());
+                stdin.println(input_);
                 stdin.flush();
                 stdin.close();
+                // TODO: notify: writtenInput(input)
             }
 
-            // TODO notify: started(input)
-
             // read from stdout line-by-line
-            BufferedReader stdout = new BufferedReader(proc.getInputStream());
+            BufferedReader stdout = new BufferedReader(new InputStreamReader(
+                                            proc.getInputStream()));
             String line;
             while(true)
             {
-                line = stdout.readLine();
+                try {
+                    line = stdout.readLine();
+                } catch (IOException ioe) {
+                    LOGGER.log(Level.SEVERE, "error reading output from a process", ioe);
+                    break;
+                }
                 if( line == null ){
                     break;
                 }
@@ -105,7 +122,8 @@ public class CommandLineProcessor
 
             } catch (InterruptedException ie) {
                 // TODO set command here
-                LOGGER.warning("killing a seemingly unresponding process");
+                LOGGER.warning(String.format("killing a seemingly unresponding process: %s",
+                                String.join(" ", template_.command())));
                 proc.destroy();
 
                 // TODO notify: killed()
