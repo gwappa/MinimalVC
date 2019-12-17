@@ -72,4 +72,10 @@ public class GitRepository
         }
         setRootNode(new GitRootNode(this, null, rootdir));
     }
+
+    @Override
+    public Result<String> updateWithLocal()
+    {
+        return Result.success("");
+    }
 }

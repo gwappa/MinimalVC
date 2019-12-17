@@ -27,9 +27,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import javax.swing.JSplitPane;
+import javax.swing.JFileChooser;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+
+import java.io.File;
 
 // may not needed in the future
 import javax.swing.BorderFactory;
@@ -49,8 +52,12 @@ import cc.chaos.vc.git.GitRepository;
 public class MinimalVC
     extends JPanel
 {
-    static final String TITLE_FORMAT  = "(MinimalVC) %s";
-    static final String NO_REPOSITORY = "<no repository selected>";
+    static final String         TITLE_OPEN_REPOSITORY   = "Choose a repository directory to open";
+    static final String         TITLE_FORMAT            = "(MinimalVC) %s";
+    static final String         NO_REPOSITORY           = "<no repository selected>";
+    static final JFileChooser   REPOSITORY_SELECTOR     = new JFileChooser(
+                                        new File(System.getProperty("user.dir")));
+    static File CURRENT_DIR     = new File(System.getProperty("user.dir"));
 
     JSplitPane content_;
 
@@ -59,7 +66,24 @@ public class MinimalVC
     public MinimalVC()
     {
         super(new BorderLayout());
+        Result<File> selection  = openDirectory(CURRENT_DIR);
+        repository_             = setupRepository(selection.isSuccessful()?
+                                        selection.get() : null);
         setupUI();
+    }
+
+    private Repository<? extends Node> setupRepository(File rootdir)
+    {
+        if (rootdir == null) {
+            return null;
+        }
+        Result<? extends Repository<? extends Node>> res
+            = GitRepository.fromRoot(rootdir);
+        if (res.isSuccessful()) {
+            return res.get();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -70,13 +94,9 @@ public class MinimalVC
         // add tree view for directory view
         JTree directoryView;
 
-        Result<? extends Repository<? extends Node>> res
-            = GitRepository.fromRoot(System.getProperty("user.dir"));
-        if (res.isSuccessful()) {
-            repository_   = res.get();
+        if (repository_ != null) {
             directoryView = new JTree(repository_);
         } else {
-            repository_   = null;
             directoryView = new JTree();
         }
 
@@ -129,12 +149,34 @@ public class MinimalVC
         add(content_, BorderLayout.CENTER);
     }
 
-    public String getRepositoryName()
+    Result<File> openDirectory(File initial)
     {
-        return repository_.getName();
+        if (initial != null) {
+            REPOSITORY_SELECTOR.setCurrentDirectory(initial);
+        }
+        REPOSITORY_SELECTOR.setSelectedFile(REPOSITORY_SELECTOR.getCurrentDirectory());
+        REPOSITORY_SELECTOR.setDialogTitle(TITLE_OPEN_REPOSITORY);
+        REPOSITORY_SELECTOR.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        REPOSITORY_SELECTOR.setMultiSelectionEnabled(false);
+
+        switch(REPOSITORY_SELECTOR.showOpenDialog(this))
+        {
+            case JFileChooser.APPROVE_OPTION:
+                return Result.success(REPOSITORY_SELECTOR.getSelectedFile());
+            case JFileChooser.CANCEL_OPTION:
+                return Result.failure("canceled repository selection");
+            case JFileChooser.ERROR_OPTION:
+            default:
+                return Result.failure("unknown error during repository selection");
+        }
     }
 
-    public void resetVerticalSplit() {
+    public String getRepositoryName()
+    {
+        return (repository_ == null)? NO_REPOSITORY : repository_.getName();
+    }
+
+    private void resetVerticalSplit() {
         content_.setDividerLocation(0.5);
     }
 
@@ -146,9 +188,7 @@ public class MinimalVC
         frame.setLocation(100, 100);
         frame.setContentPane(content);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        String reponame = content.getRepositoryName();
-        frame.setTitle(String.format(TITLE_FORMAT,
-                        (reponame == null)? NO_REPOSITORY:reponame));
+        frame.setTitle(String.format(TITLE_FORMAT, content.getRepositoryName()));
         frame.setVisible(true);
         content.resetVerticalSplit();
     }

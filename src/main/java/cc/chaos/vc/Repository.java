@@ -25,6 +25,8 @@
 
 package cc.chaos.vc;
 
+import cc.chaos.util.Result;
+
 /**
  *  a representation of version-controlled repository entity model.
  *  @author gwappa
@@ -41,4 +43,9 @@ public interface Repository<V extends Node>
      *  @return a human-readable name of this repository.
      */
     String getName();
+
+    /**
+     *  updates with the current status of the repository.
+     */
+    Result<String> updateWithLocal();
 }
